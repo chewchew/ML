@@ -17,3 +17,6 @@ def dsqrerr(y,t):
 def softmax(ys):
 	e_ys = sum(np.exp(ys))
 	return np.array([np.exp(y) / e_ys for y in ys])
+
+def linear(zs):
+	return zs

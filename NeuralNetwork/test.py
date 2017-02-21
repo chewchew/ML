@@ -62,12 +62,12 @@ def test_feedfwd():
 	y1 = l21 * w311 + l22 * w321 + b31
 	y2 = l21 * w312 + l22 * w322 + b32
 
-	out = softmax(np.array([y1,y2]))
+	out = linear(np.array([y1,y2]))
 
-	delta = 0.01
+	delta = 0.1
 	# print 'valid:  \t',out
 	# v = feedfwd(x,w,b,f,softmax)['output']
-	v = feedfwd(x,w,b,f,softmax)['output']
+	v = feedfwd(x,w,b,f,linear)['output']
 	# print 'feedfwd:\t',v
 	t = np.abs(out - v) < delta
 	return {PASSED : t.all(), RESULT : {'feedfwd' : v, 'correct' : out}}

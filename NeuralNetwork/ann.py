@@ -38,7 +38,7 @@ def backprop(inputs,error,ws,bs,df,step):
 		dfy = error * df(z_l)
 		dw = dfy.reshape(len(dfy),1) * x_l.reshape(1,len(x_l))
 		db = dfy
-		error = sum(ws[i] * dfy.reshape(len(dfy),1))
+		error = np.sum(ws[i] * dfy.reshape(len(dfy),1))
 		
 		ws[i] = ws[i] - step * dw
 		bs[i] = bs[i] - step * db
@@ -56,13 +56,14 @@ def biases(n_hid,n_units):
 	bs.append(np.array([np.random.rand()]))
 	return bs
 
-f  = logistic
-df = dlogistic
+f     = logistic
+df 	  = dlogistic
+f_out = lambda zs : zs
 
 def validation(data,w,b):
 	avg_error = 0
 	for (x,t) in data:
-		res = feedfwd(x, w, b, f)
+		res = feedfwd(x, w, b, f, f_out)
 		avg_error += sqrerr(res['output'], t)
 	return avg_error / len(data)
 
@@ -79,7 +80,7 @@ def run(data,n_inputs,n_hid,n_units,step,epochs):
 		np.random.shuffle(data)
 		validation_set = data[:n/5]
 		for i,(x,t) in enumerate(data[n/5 : ]):
-			res = feedfwd(x, w, b, f)
+			res = feedfwd(x, w, b, f, f_out)
 			derror = dsqrerr(res['output'], t)
 			backprop(res['inputs'], derror, w, b, df, step)
 		cost = validation(validation_set,w,b)
