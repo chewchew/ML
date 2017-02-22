@@ -2,8 +2,10 @@ import numpy as np
 from ann import pre,feedfwd,backprop
 from func import *
 
-PASSED = 'passed'
-RESULT = 'result'
+PASSED 	= 'passed'
+RESULT 	= 'result'
+RET    	= 'ret'
+CORRECT = 'correct'
 
 def test_pre():
 	print "TEST PRE"
@@ -22,7 +24,7 @@ def test_pre():
 	print pre(x,w,b)
 
 def init(rand_init=True):
-	rand = lambda : np.random.rand() * 10
+	rand = lambda : int(np.random.rand() * 10)
 	x = np.array([rand() if rand_init else 2 for i in xrange(0,2)])
 
 	w111 = rand() if rand_init else 1
@@ -53,16 +55,24 @@ f = logistic
 
 def test_feedfwd():
 	globals().update(init())
-	l11 = f(x[0] * w111 + x[1] * w121 + b11)
-	l12 = f(x[0] * w112 + x[1] * w122 + b12) 
+	z11 = x[0] * w111 + x[1] * w121 + b11
+	z12 = x[0] * w112 + x[1] * w122 + b12
+	# print 'z1 (correct): ',z11,z12
+	y11 = f(z11)
+	y12 = f(z12) 
 
-	l21 = f(l11 * w211 + l12 * w221 + b21)
-	l22 = f(l11 * w212 + l12 * w222 + b22)
+	# print 'y1 (correct): ',y11,y12
+	z21 = y11 * w211 + y12 * w221 + b21
+	z22 = y11 * w212 + y12 * w222 + b22
+	# print 'z2 (correct): ',z21,z22
+	y21 = f(z21)
+	y22 = f(z22)
 
-	y1 = l21 * w311 + l22 * w321 + b31
-	y2 = l21 * w312 + l22 * w322 + b32
+	# print 'y2 (correct): ',y21,y22
+	y31 = y21 * w311 + y22 * w321 + b31
+	y32 = y21 * w312 + y22 * w322 + b32
 
-	out = linear(np.array([y1,y2]))
+	out = linear(np.array([y31,y32]))
 
 	delta = 0.1
 	# print 'valid:  \t',out
@@ -70,7 +80,7 @@ def test_feedfwd():
 	v = feedfwd(x,w,b,f,linear)['output']
 	# print 'feedfwd:\t',v
 	t = np.abs(out - v) < delta
-	return {PASSED : t.all(), RESULT : {'feedfwd' : v, 'correct' : out}}
+	return {PASSED : t.all(), RESULT : {RET : v, CORRECT : (out,np.abs(out - v))}}
 
 def test_backprop():
 	globals().update(init(rand_init=False))
@@ -88,7 +98,8 @@ def test(t,n):
 	for i in xrange(0,n):
 		res = t()
 		if not res[PASSED]:
-			print 'Error -> Result: ',res[RESULT]
+			print 'Error -> Returned: %s, Correct: %s' % (res[RESULT][RET],res[RESULT][CORRECT])
+			return
 
 # test_pre()
 print "TEST FEEDFWD"

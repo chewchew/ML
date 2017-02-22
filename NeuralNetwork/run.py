@@ -8,11 +8,12 @@ from func import logistic
 
 # Setup
 n_inputs = 1
-n_hid   = 2
-n_units = 8
-step    = 0.2
-epochs  = 20
-samples = 30000
+n_outputs = 1
+n_hid   = 3
+n_units = 10
+step    = 0.5
+epochs  = 500
+samples = 5000
 
 f   = lambda x : np.sin(x) * (1 + np.sin(x))
 # f = lambda x : np.linalg.norm(x)
@@ -35,13 +36,18 @@ def xs2D(rng,n):
 xs = xs2D(rng,samples)
 
 data = [(x,f(x)) for x in xs]
-(w,b),costs = run(data, n_inputs, n_hid, n_units, step, epochs)
+(w,b),costs = run(data, n_inputs, n_hid, n_units, n_outputs, step, epochs)
+
 
 # Plot 2D
-plt.plot(xs,[f(x) for x in xs])
-ys = map(lambda e: e['output'],[feedfwd(x, w, b, logistic, lambda zs : zs) for x in xs])
-plt.plot(xs,ys)
-plt.show()
+plt.figure()
+
+plt.plot(xs,[f(x) for x in xs],'g--')
+ys = np.array(map(lambda e: e['output'], [feedfwd(x, w, b, logistic, lambda zs : zs) for x in xs]))
+plt.plot(xs,ys,'r')
+
+plt.figure()
+plt.plot(range(0,len(costs)),costs)
 
 # Plot 3D
 # fig = plt.figure()
@@ -51,4 +57,5 @@ plt.show()
 # ys = map(lambda e: e['output'],[feedfwd(x, w, b, logistic, lambda zs : zs) for x in xs])
 # plot_ann = ax1.scatter(xs_plot,ys_plot,ys)
 # plot_f   = ax1.scatter(xs_plot,ys_plot,[f(x) for x in xs])
-# plt.show()
+
+plt.show()

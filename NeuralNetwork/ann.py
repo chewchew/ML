@@ -17,7 +17,7 @@ def feedfwd(x,w,b,f,out_f):
 		zs = pre(ys,w_l,b_l)
 		inputs.append((ys,zs))
 		ys = f(zs)
-	zs = sum(w[-1] * ys) + b[-1]
+	zs = sum(w[-1] * ys.reshape(len(ys),1)) + b[-1]
 	inputs.append((ys,zs))
 	output = out_f(zs)
 	return { 'inputs' : inputs, 'output' : output }
@@ -27,9 +27,9 @@ def backprop(inputs,error,ws,bs,df,step):
 	
 	x_l,z_l = inputs[-1]
 	dfy = error * df(z_l)
-	dw = dfy * x_l
+	dw =  x_l.reshape(len(x_l),1) * dfy.reshape(1,len(dfy))
 	db = dfy
-	error = dfy * ws[-1]
+	error =  np.sum(ws[-1] * dfy)
 	
 	ws[-1] = ws[-1] - step * dw
 	bs[-1] = bs[-1] - step * db
@@ -45,10 +45,10 @@ def backprop(inputs,error,ws,bs,df,step):
 
 init = lambda n_units : np.array([np.random.rand() for i in xrange(0,n_units)])
 
-def weights(n_inputs,n_hid,n_units):
+def weights(n_inputs,n_hid,n_units,n_outputs):
 	ws = [[init(n_units) for j in xrange(0,n_units)] for i in xrange(0,n_hid-1)]
 	ws.insert(0, [init(n_inputs) for j in xrange(0,n_units)])
-	ws.append(init(n_units))
+	ws.append([init(n_outputs) for j in xrange(0,n_units)])
 	return ws
 
 def biases(n_hid,n_units):
@@ -67,14 +67,14 @@ def validation(data,w,b):
 		avg_error += sqrerr(res['output'], t)
 	return avg_error / len(data)
 
-def run(data,n_inputs,n_hid,n_units,step,epochs):
-	w = weights(n_inputs,n_hid,n_units)
+def run(data,n_inputs,n_hid,n_units,n_outputs,step,epochs):
+	w = weights(n_inputs,n_hid,n_units,n_outputs)
 	b = biases(n_hid,n_units)
 	ret = (w,b)
 	n = len(data)
 
 	costs = []
-	best_cost = np.inf
+	best_cost = validation(data,w,b)
 	best_epoch = 0
 	for j in xrange(0,epochs):
 		np.random.shuffle(data)
@@ -85,7 +85,7 @@ def run(data,n_inputs,n_hid,n_units,step,epochs):
 			backprop(res['inputs'], derror, w, b, df, step)
 		cost = validation(validation_set,w,b)
 		costs.append(cost)
-		if cost < best_cost:
+		if cost.all() < best_cost.all():
 			ret = (deepcopy(w),deepcopy(b))
 			best_cost = cost
 			best_epoch = j
