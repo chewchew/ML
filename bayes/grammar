@@ -1,0 +1,15 @@
+HEADING 	:= CHARACTER | SCENE
+
+TEXT 		:= [[a-z] + ['_' "'" , . ; : ! ? -]]*
+BEGIN 		:= '\n' '\n'
+END			:= '\n'
+ROMAN_NUM   := 'I' | 'I' 'I' | 'I' 'I' 'I' | 'I' 'V' | 'V' | 'V' 'I'
+NAME 		:= (a-z)*
+
+CHARACTER 	:= NAME BEGIN ('\t' TEXT '\n')* END HEADING
+
+SCENE 		:= 'SCENE' ROMAN_NUM '.' TEXT BEGIN ('\t' TEXT '\n')* END
+
+ACT 		:= 'ACT' ROMAN_NUM
+
+TEXT		:= [a-z]* or 'Enter' NAME*

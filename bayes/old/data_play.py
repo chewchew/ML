@@ -90,3 +90,4 @@ wcs,words = word_count('script.txt',['the'])
 print len(words)
 for character,word_count in wcs.items():
 	print character, ': ', sorted(word_count.items(),key=lambda (k,v) : v)[-10:]
+
